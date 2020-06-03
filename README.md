@@ -1,3 +1,1 @@
-#DJI Onboard SDK ROS Packages
-
-####Please refer to <https://developer.dji.com/onboard-sdk/documentation/github-platform-docs/ROS/README.html> in DJI Developer Website.
+DJI M100 Indoor Flight via manual key coordinates using RPLidar A2 as an input sensor (Refer to rplidar_ros in my repositary)
