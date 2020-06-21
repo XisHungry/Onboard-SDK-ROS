@@ -500,11 +500,11 @@ int main(int argc, char *argv[])
 			
 	case 19:
 		{
-		ifstream File("Coordinate.txt");
+		ifstream File("Coordinates.txt");
+		ifstream FileR("Rows.txt");
 		int a, i, o;
 		double f, b, l, r, Front, Back, Left, Right, NFront, NBack, NLeft, NRight;
-		cout << "Amount of Coordinates" << "\n";
-		cin >> a;
+		FileR >> a;
 		int x[a][4];
 		for (i = 0; i < a; i++)
 		{
