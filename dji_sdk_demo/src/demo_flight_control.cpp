@@ -19,7 +19,6 @@
 
 using namespace std;
 
-
 const float deg2rad = C_PI/180.0;
 const float rad2deg = 180.0/C_PI;
 
@@ -116,7 +115,11 @@ localOffsetFromGpsOffset(geometry_msgs::Vector3&  deltaNed,
   deltaNed.x = deltaLon * deg2rad * C_EARTH * cos(deg2rad*target.latitude);
   deltaNed.z = target.altitude - origin.altitude;
 
-  ROS_INFO("Lat=%f, Long=%f, Alt=%f", target.latitude, target.longitude, target.altitude);
+  ofstream Location;
+  Location.open("Location.txt");
+  Location <<"Latitude = " fixed << setprecision(6) << target.latitude  << ", Longitude = "  << fixed << setprecision(6) << target.longitude << ", Altitude = " << fixed << setprecision(2) << target.altitude << "\n";
+
+  //ROS_INFO("Lat=%f, Long=%f, Alt=%f", target.latitude, target.longitude, target.altitude);
 }
 
 geometry_msgs::Vector3 toEulerAngle(geometry_msgs::Quaternion quat)
