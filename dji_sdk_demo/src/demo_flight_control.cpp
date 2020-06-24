@@ -11,6 +11,14 @@
 
 #include "dji_sdk_demo/demo_flight_control.h"
 #include "dji_sdk/dji_sdk.h"
+#include <fstream>
+#include <iostream>
+#include <cstdlib>
+#include <stdlib.h>
+#include <stdio.h>
+
+using namespace std;
+
 
 const float deg2rad = C_PI/180.0;
 const float rad2deg = 180.0/C_PI;
@@ -83,9 +91,8 @@ int main(int argc, char** argv)
     square_mission.reset();
     square_mission.start_gps_location = current_gps;
     square_mission.start_local_position = current_local_pos;
-    square_mission.setTarget(0, 20, 3, 60);
+    square_mission.setTarget(0, 0, 1, 0);
     square_mission.state = 1;
-    ROS_INFO("##### Start route %d ....", square_mission.state);
   }
 
   ros::spin();
@@ -108,8 +115,9 @@ localOffsetFromGpsOffset(geometry_msgs::Vector3&  deltaNed,
   deltaNed.y = deltaLat * deg2rad * C_EARTH;
   deltaNed.x = deltaLon * deg2rad * C_EARTH * cos(deg2rad*target.latitude);
   deltaNed.z = target.altitude - origin.altitude;
-}
 
+  ROS_INFO("Lat=%f, Long=%f, Alt=%f", target.latitude, target.longitude, target.altitude);
+}
 
 geometry_msgs::Vector3 toEulerAngle(geometry_msgs::Quaternion quat)
 {
@@ -125,8 +133,8 @@ void Mission::step()
   static int info_counter = 0;
   geometry_msgs::Vector3     localOffset;
 
-  float speedFactor         = 2;
-  float yawThresholdInDeg   = 2;
+  float speedFactor         = 0.3;
+  float yawThresholdInDeg   = 1;
 
   float xCmd, yCmd, zCmd;
 
@@ -144,8 +152,7 @@ void Mission::step()
   if(info_counter > 25)
   {
     info_counter = 0;
-    ROS_INFO("-----x=%f, y=%f, z=%f, yaw=%f ...", localOffset.x,localOffset.y, localOffset.z,yawInRad);
-    ROS_INFO("+++++dx=%f, dy=%f, dz=%f, dyaw=%f ...", xOffsetRemaining,yOffsetRemaining, zOffsetRemaining,yawInRad - yawDesiredRad);
+    //ROS_INFO("X=%f, Y=%f, Z=%f", localOffset.x,localOffset.y, current_gps);
   }
   if (abs(xOffsetRemaining) >= speedFactor)
     xCmd = (xOffsetRemaining>0) ? speedFactor : -1 * speedFactor;
@@ -201,9 +208,9 @@ void Mission::step()
     ctrlPosYawPub.publish(controlPosYaw);
   }
 
-  if (std::abs(xOffsetRemaining) < 0.5 &&
-      std::abs(yOffsetRemaining) < 0.5 &&
-      std::abs(zOffsetRemaining) < 0.5 &&
+  if (std::abs(xOffsetRemaining) < 0.2 &&
+      std::abs(yOffsetRemaining) < 0.2 &&
+      std::abs(zOffsetRemaining) < 0.2 &&
       std::abs(yawInRad - yawDesiredRad) < yawThresholdInRad)
   {
     //! 1. We are within bounds; start incrementing our in-bound counter
@@ -291,6 +298,24 @@ void local_position_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 
 void gps_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
+  int a, i, o, X;
+  int x[a][4];
+  int e;
+
+  if (e != 1)
+  {
+	ifstream RFile("Rows.txt");
+	RFile >> a;
+	ifstream File("Coordinates.txt");	
+	for (i = 0; i < a; i++)
+	{
+		for (o = 0; o < 4; o++)
+		{
+			File >> x[i][o];
+		}
+	}
+	i = 0;
+  }
   static ros::Time start_time = ros::Time::now();
   ros::Duration elapsed_time = ros::Time::now() - start_time;
   current_gps = *msg;
@@ -298,70 +323,73 @@ void gps_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)
   // Down sampled to 50Hz loop
   if(elapsed_time > ros::Duration(0.02))
   {
-    start_time = ros::Time::now();
-    switch(square_mission.state)
-    {
-      case 0:
-        break;
+   	start_time = ros::Time::now();
+	switch(square_mission.state)
+	{
+	case 0:
+		break;
 
-      case 1:
-        if(!square_mission.finished)
-        {
-          square_mission.step();
-        }
-        else
-        {
-          square_mission.reset();
-          square_mission.start_gps_location = current_gps;
-          square_mission.start_local_position = current_local_pos;
-          square_mission.setTarget(20, 0, 0, 0);
-          square_mission.state = 2;
-          ROS_INFO("##### Start route %d ....", square_mission.state);
-        }
-        break;
+	case 1:
+		//Perform Flight
+		if(!square_mission.finished)
+		{
+		  square_mission.step();
+		  
+		}
 
-      case 2:
-        if(!square_mission.finished)
-        {
-          square_mission.step();
-        }
-        else
-        {
-          square_mission.reset();
-          square_mission.start_gps_location = current_gps;
-          square_mission.start_local_position = current_local_pos;
-          square_mission.setTarget(0, -20, 0, 0);
-          square_mission.state = 3;
-          ROS_INFO("##### Start route %d ....", square_mission.state);
-        }
-        break;
-      case 3:
-        if(!square_mission.finished)
-        {
-          square_mission.step();
-        }
-        else
-        {
-          square_mission.reset();
-          square_mission.start_gps_location = current_gps;
-          square_mission.start_local_position = current_local_pos;
-          square_mission.setTarget(-20, 0, 0, 0);
-          square_mission.state = 4;
-          ROS_INFO("##### Start route %d ....", square_mission.state);
-        }
-        break;
-      case 4:
-        if(!square_mission.finished)
-        {
-          square_mission.step();
-        }
-        else
-        {
-          ROS_INFO("##### Mission %d Finished ....", square_mission.state);
-          square_mission.state = 0;
-        }
-        break;
-    }
+		//Pitch
+		else if ((x[i][0] < 0) || (x[i][0] > 0))
+		{
+		  square_mission.reset();
+		  square_mission.start_gps_location = current_gps;
+		  square_mission.start_local_position = current_local_pos;
+		  X = x[i][0];
+		  square_mission.setTarget(X, 0, 0, 0);
+          	  square_mission.state = 1;
+		  e = 1;
+		  i = i + 1;
+		}
+
+		//Roll
+		else if ((x[i][1] < 0) || (x[i][1] > 0))
+		{
+		  square_mission.reset();
+		  square_mission.start_gps_location = current_gps;
+		  square_mission.start_local_position = current_local_pos;
+		  X = x[i][1];
+		  square_mission.setTarget(0, X, 0, 0);
+          	  square_mission.state = 1;
+		  e = 1;
+		  i = i + 1;
+		}
+
+		//Throttle
+		else if ((x[i][2] < 0) || (x[i][2] > 0))
+		{
+		  square_mission.reset();
+		  square_mission.start_gps_location = current_gps;
+		  square_mission.start_local_position = current_local_pos;
+		  X = x[i][2];
+		  square_mission.setTarget(0, 0, X, 0);
+          	  square_mission.state = 1;
+		  e = 1;
+		  i = i + 1;
+		}
+
+		//Yaw
+		else if ((x[i][3] < 0) || (x[i][3] > 0))
+		{
+		  square_mission.reset();
+		  square_mission.start_gps_location = current_gps;
+		  square_mission.start_local_position = current_local_pos;
+		  X = x[i][0];
+		  square_mission.setTarget(0, 0, 0, X);
+          	  square_mission.state = 1;
+		  e = 1;
+		  i = i + 1;
+		}
+
+	}
   }
 }
 
