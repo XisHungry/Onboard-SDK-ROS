@@ -17,6 +17,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+int k;
+double StartAlt, CurrentAlt;
+
 using namespace std;
 
 const float deg2rad = C_PI/180.0;
@@ -114,12 +117,20 @@ localOffsetFromGpsOffset(geometry_msgs::Vector3&  deltaNed,
   deltaNed.y = deltaLat * deg2rad * C_EARTH;
   deltaNed.x = deltaLon * deg2rad * C_EARTH * cos(deg2rad*target.latitude);
   deltaNed.z = target.altitude - origin.altitude;
+	
+  if (k != 1)
+  {
+	  StartAlt = target.altitude - 1;
+	  k = 1;
+  }
 
+  CurrentAlt = target.altitude - StartAlt;
+	
   ofstream Location;
   Location.open("Location.txt");
-  Location <<"Latitude = " fixed << setprecision(6) << target.latitude  << ", Longitude = "  << fixed << setprecision(6) << target.longitude << ", Altitude = " << fixed << setprecision(2) << target.altitude << "\n";
+  Location <<"Latitude = " fixed << setprecision(6) << target.latitude  << ", Longitude = "  << fixed << setprecision(6) << target.longitude << ", Altitude = " << fixed << setprecision(2) << CurrentAlt << "\n";
 
-  //ROS_INFO("Lat=%f, Long=%f, Alt=%f", target.latitude, target.longitude, target.altitude);
+  //ROS_INFO("Lat=%f, Long=%f, Alt=%f", target.latitude, target.longitude, CurrentAlt);
 }
 
 geometry_msgs::Vector3 toEulerAngle(geometry_msgs::Quaternion quat)
