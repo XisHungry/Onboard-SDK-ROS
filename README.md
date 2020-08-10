@@ -20,7 +20,7 @@ Not applicable
 Refer to my documentation link
 
 ## 4. Results
-DJI M100 is able to navigate automactically via coordinates in an indoor environment. 
+DJI M100 is able to navigate automatically via coordinates in an indoor environment. 
 
 ## 5. Built with:
 - DJI OSDK ROS 3.2
