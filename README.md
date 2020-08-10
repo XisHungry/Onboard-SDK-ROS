@@ -20,7 +20,7 @@ Not applicable
 Refer to my documentation link
 
 ## 4. Results
-DJI M100 is able to navigate automactically via GPS in an outdoor environment 
+DJI M100 is able to navigate automatically via GPS in an outdoor environment 
 
 ## 5. Built with:
 - DJI OSDK ROS 3.7
