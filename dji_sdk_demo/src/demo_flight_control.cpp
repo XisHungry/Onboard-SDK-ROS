@@ -129,7 +129,7 @@ localOffsetFromGpsOffset(geometry_msgs::Vector3&  deltaNed,
 	
   ofstream Location;
   Location.open("Location.txt");
-  Location <<"Latitude=" fixed << setprecision(6) << target.latitude  << ",Longitude="  << fixed << setprecision(6) << target.longitude << ",Altitude=" << fixed << setprecision(2) << CurrentAlt << "\n";
+  Location <<"Latitude=" << fixed << setprecision(6) << target.latitude  << ",Longitude="  << fixed << setprecision(6) << target.longitude << ",Altitude=" << fixed << setprecision(2) << CurrentAlt << "\n";
 
   ROS_INFO("Lat=%f, Long=%f, Alt=%f", target.latitude, target.longitude, CurrentAlt);
 }
