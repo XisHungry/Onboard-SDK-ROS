@@ -345,11 +345,16 @@ void gps_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 		break;
 
 	case 1:
-		//Perform Flight
-		if(!square_mission.finished)
+		//Stop Flight
+		if ((x[i][0] == 0) && (x[i][1] == 0) && (x[i][2] == 0) && (x[i][3] == 0))
 		{
-		  square_mission.step();
-		  
+		  square_mission.state = 0;
+		}
+		
+		//Perform Flight
+		else if(!square_mission.finished)
+		{
+		  square_mission.step();		  
 		}
 
 		//Pitch
