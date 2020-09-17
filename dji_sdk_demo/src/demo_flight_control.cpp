@@ -345,18 +345,18 @@ void gps_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 		break;
 
 	case 1:
+		//Perform Flight
+		if(!square_mission.finished)
+		{
+		  square_mission.step();		  
+		}
+	
 		//Stop Flight
-		if ((x[i][0] == 0) && (x[i][1] == 0) && (x[i][2] == 0) && (x[i][3] == 0))
+		else if ((x[i][0] == 0) && (x[i][1] == 0) && (x[i][2] == 0) && (x[i][3] == 0))
 		{
 		  square_mission.state = 0;
 		}
 		
-		//Perform Flight
-		else if(!square_mission.finished)
-		{
-		  square_mission.step();		  
-		}
-
 		//Pitch
 		else if ((x[i][0] < 0) || (x[i][0] > 0))
 		{
@@ -408,7 +408,6 @@ void gps_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 		  e = 1;
 		  i = i + 1;
 		}
-
 	}
   }
 }
