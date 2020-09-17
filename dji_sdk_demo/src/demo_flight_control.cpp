@@ -402,7 +402,7 @@ void gps_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 		  square_mission.reset();
 		  square_mission.start_gps_location = current_gps;
 		  square_mission.start_local_position = current_local_pos;
-		  X = x[i][0];
+		  X = x[i][3];
 		  square_mission.setTarget(0, 0, 0, X);
           	  square_mission.state = 1;
 		  e = 1;
