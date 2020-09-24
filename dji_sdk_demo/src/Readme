@@ -1,1 +1,6 @@
-Copy the file you want to use and change its name to client.cpp in order the run the code
+Copy the code you want to use  to client.cpp
+Run:
+```
+cd Onboard-SDK-ROS/build/src
+catkin_make
+```
